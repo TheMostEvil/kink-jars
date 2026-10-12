@@ -58,11 +58,21 @@
   .q canvas{width:76px;height:124px}
   .qnum{font-size:14px;color:var(--muted);font-weight:700}
   .qlabel{font-family:Oswald,sans-serif;font-weight:600;font-size:25px;line-height:1.1;margin:2px 0 10px}
+  .qlabel-row{display:flex;align-items:center;gap:7px;margin:2px 0 10px;flex-wrap:wrap}
+  .qlabel-row .qlabel{margin:0}
+  .jar-info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;flex:0 0 21px;padding:0;border:2px solid var(--muted);border-radius:50%;background:#fff;color:var(--muted);font:800 13px/1 Nunito,system-ui,sans-serif;cursor:help}
+  .jar-info::after{content:attr(data-description);position:absolute;left:50%;bottom:calc(100% + 9px);transform:translateX(-50%);width:max-content;max-width:min(280px,75vw);white-space:normal;overflow-wrap:anywhere;padding:9px 12px;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);font:700 14px/1.4 Nunito,system-ui,sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.12);z-index:20;opacity:0;visibility:hidden;pointer-events:none;text-align:left}
+  .jar-info::before{content:"";position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);opacity:0;visibility:hidden;z-index:21}
+  .jar-info:hover::after,.jar-info:focus-visible::after,.jar-info:hover::before,.jar-info:focus-visible::before{opacity:1;visibility:visible}
+  .jar-info:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
   .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-width:380px}
   .scale button{height:52px;border-radius:14px;border:2px solid var(--ink);background:#fff;font-family:Oswald,sans-serif;font-weight:600;font-size:22px;transition:transform .08s}
   .scale button:active{transform:scale(.94)}
   .scale button[aria-pressed=true]{background:var(--c);color:var(--on-c);box-shadow:0 3px 0 var(--ink)}
   .ends{display:flex;justify-content:space-between;max-width:380px;font-size:13px;color:var(--muted);font-weight:700;margin-top:5px}
+  .marks{grid-template-columns:repeat(2,1fr);margin-top:10px}
+  .marks button{height:44px;font-size:18px}
+  .marks button:last-child[aria-pressed=true]{background:var(--ink);color:#fff}
 
   /* poster + save */
   .poster{width:100%;height:auto;display:block;border-radius:12px;border:2px solid var(--line);background:#fff}
@@ -127,7 +137,7 @@
       <section class="panel">
         <div class="step">Step 3</div>
         <h2>Fill your jars</h2>
-        <p class="hint">Tap a number. Tap it again to empty the jar.</p>
+        <p class="hint">Tap a number, mark it Curious, or mark it as a Hard limit. Tap your choice again to clear it.</p>
         <div id="questions"></div>
       </section>
     </main>
@@ -147,7 +157,7 @@
   </div>
 </div>
 
-<div class="bar"><div class="bar-in"><span id="progress">0 of 28 filled</span><button class="big" id="saveBar" type="button">Save my jars</button></div></div>
+<div class="bar"><div class="bar-in"><span id="progress">0 of 28 answered</span><button class="big" id="saveBar" type="button">Save my jars</button></div></div>
 
 <div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mt">
   <div class="sheet">
@@ -159,18 +169,109 @@
 </div>
 
 <script>
-/* ===== Edit the jars here. Each array is the label, one entry per line. ===== */
+/* ===== Edit the jars here. Each array is the label, one entry per line. adding DISC: to the final entry will add a icon with info about the kink ===== */
 const JARS = [
-  ["being","a dom"],["being","a sub"],["being","a switch"],["choking"],["being","choked"],["spanking"],["being","spanked"],
-  ["ddlg / mdlb"],["age","play"],["doing stuff","in public"],["wax","play"],["water","sports"],["role","play"],["consensual","non consent"],
-  ["having","orgasms","controlled"],["controlling","orgasms"],["gags"],["feet"],["anal"],["being","tied up"],["tying","people up"],
-  ["humiliating","or","degrading"],["being","humiliated","or","degraded"],["bdsm"],["threesomes"],["sadism"],["masochism"],["spit"]
+  ["Being", "Dominant"],
+  ["Being","Submissive"],
+  ["Choking"],
+  ["Being","Choked"],
+  ["Spanking"],
+  ["Being", "Spanked"],
+  ["Biting"],
+  ["Being","Bit"],
+  ["Shower","Sex"],
+  ["69"],
+  ["Blowjobs","DISC: Sucking Dick"],
+  ["Cunnilingus","DISC: Eating Pussy"],
+  ["Analingus","DISC: Eating Ass"],
+  ["DDLG","/","MDLB", "DISC:Daddy Dom Little Girl / Mommy Dom Little Boy"],
+  ["Age","Play"],
+  ["Sex","Toys"],
+  ["Facesitting"],
+  ["Voyeurism","DISC:Being watched performing sexual acts"],
+  ["Exhibitionism","DISC:Sexual acts in public places"],
+  ["Temperature","Play"],
+  ["Watersports","DISC:Sexual acts involving piss"],
+  ["Roleplay"],
+  ["CNC","DISC:Consensual non-consent: a scene you plan together where you or your partner pretends to resist and then carry on. Limits and a safeword are agreed first."],
+  ["Free","Use","DISC:An agreement where one partner may be used for sexual play at any time without consent in the moment"],
+  ["Controlling", "Orgasms"],
+  ["Having", "Orgasms", "Controlled"],
+  ["Gags"],
+  ["Feet"],
+  ["Anal"],
+  ["Rope Bunny","DISC: Being tied up"],
+  ["Rigger","DISC: Tying people up"],
+  ["Degradation","DISC: Taking playful sexual insults"],
+  ["Degradee","DISC: Giving playful sexual insults"],
+  ["BDSM"],
+  ["Threesome+"],
+  ["Swinging","DISC:The act of two couples switching partners"],
+  ["Sadism","DISC: Giving Pain"],
+  ["Masochism","DISC: Receiving Pain"],
+  ["Spit"],
+  ["Praise"],
+  ["Being Praised"],
+  ["Dirty Talk","DISC: Saying explicit things during sex or having them said to you"],
+  ["Humiliation","Play"],
+  ["Rough Sex"],
+  ["Gentle Sex"],
+  ["Blindfolds"],
+  ["Being","a","Brat"],
+  ["Brat","Tamer"],
+  ["Master","/","Slave","DISC:A more formal roleplay where one person takes complete control of the other"],
+  ["Collars"],
+  ["Tickling"],
+  ["Sounding"],
+  ["Scratching"],
+  ["Being","Scratched"],
+  ["Sensory","Deprivation","DISC: Limiting a persons senses and movements for sexual enjoyment"],
+  ["Mind","Control"],
+  ["Fear","Play"],
+  ["Edging"],
+  ["Somnophilia","DISC: Consenual Sleep Kink"],
+  ["Cheating"],
+  ["Chasity","Devices"],
+  ["Size","Kink"],
+  ["Body","Writing"],
+  ["Smell","DISC: Arousal triggered by a partner's natural scent."],
+  ["Bellybutton","Play"],
+  ["Feederism","DISC:Arousal triggered by feeding weight gain."],
+  ["Armpit"],
+  ["Pregnancy"],
+  ["Farts"],
+  ["Cucking"],
+  ["Gangbang"],
+  ["Orgy"],
+  ["Mutual","Masturbation","DISC: The act of jerking your partner off while they do the same to you"],
+  ["Latex"],
+  ["Diapers"],
+  ["Breath","Play"],
+  ["Knife","Play"],
+  ["Blood","Play"],
+  ["Cannibalism"],
+  ["Inflation"],
+  ["Cumflation","DISC: Not traditional inflation through methods like airpump, rather just through cum"],
+  ["X-Ray","DISC: Internal views of organs or guts during sex"],
+  ["Vore","DISC: The act of eating someone whole or being eaten whole"],
+  ["Tentacle"],
+  ["Knotting",'DISC: FICTIONAL ONLY'],
+  ["Fictional","Monsters","DISC: Werewolves, Vampires, Eldrich Beings, etc"]
+
 ];
+// Add a description as the final item, prefixed with "DISC:".
+// Example: ["custom", "entry", "name", "DISC:this_is_a_description"]
+const jarLabel = jar => jar.filter(part => typeof part === "string" && !part.startsWith("DISC:")).join(" ");
+const jarDescription = jar => {
+  const item = jar.find(part => typeof part === "string" && part.startsWith("DISC:"));
+  return item ? item.slice(5).replace(/_/g, " ") : "";
+};
 const PRESETS = ["#e63946","#ff5d8f","#ff8c42","#ffd23f","#7bd389","#2ec4b6","#3a86ff","#5b2a86","#c77dff","#8d1d3a","#8d5524","#2b2d42"];
 const COLS = 7, INK = "#151311", PW = 1200;
 const ROWS = Math.ceil(JARS.length / COLS);
 const PH = 260 + (ROWS - 1) * 345 + 360;
 const STORE = "kinkjars-v1";
+const CURIOUS = 6, LIMIT = 7, MARKS = { [CURIOUS]: "Curious", [LIMIT]: "Hard limit" };
 
 /* ===== state ===== */
 let state = { name: "", color: "#e63946", answers: JARS.map(() => 0) };
@@ -245,6 +346,13 @@ function collar(c, base, drips) {
   c.lineTo(1, base); c.quadraticCurveTo(-3, base, -3, base - 4); c.quadraticCurveTo(-4, 22, 4, 18); c.closePath();
 }
 
+
+function tape(c, x1, y1, x2, y2, w) { // strip with notched ends, copied from the fork
+  const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), co = Math.cos(a), si = Math.sin(a);
+  [[0, -w / 2], [L, -w / 2], [L - 4, 0], [L, w / 2], [0, w / 2], [4, 0]].forEach(([u, v], i) => c[i ? "lineTo" : "moveTo"](x1 + u * co - v * si, y1 + u * si + v * co));
+  c.closePath();
+}
+
 /* Each jar gets one of six "overflow" looks, with its own random details. */
 const STYLE_NAMES = ["drips", "puddle", "foam", "geyser", "splash", "hearts"];
 function jarParams(idx) {
@@ -286,6 +394,8 @@ function jarParams(idx) {
 }
 
 function drawJar(c, idx, level, rgb) {
+  const mark = level > 5 ? level : 0;
+  if (mark) level = 0;
   const P = jarParams(idx), r = P.r, fill = css(rgb);
   c.save(); c.lineJoin = "round"; c.lineCap = "round";
 
@@ -348,6 +458,27 @@ function drawJar(c, idx, level, rgb) {
 
   // lid
   if (level === 5 && P.lid) drawLid(c, P.lid.dx, P.lid.dy, P.lid.rot); else drawLid(c);
+  // Match the fork's original hanging-sign and crossed-off tape markers.
+  const wob = Math.sin(P.phase);
+  if (mark === LIMIT) {
+    const k = wob * 4, strips = [[8, 48 + k, 88, 150 - k], [88, 48 - k, 8, 150 + k]];
+    c.lineWidth = 8; c.strokeStyle = INK;
+    for (const strip of strips) { c.beginPath(); tape(c, ...strip, 17); c.stroke(); }
+    c.fillStyle = "#f6e7b4";
+    for (const strip of strips) { c.beginPath(); tape(c, ...strip, 17); c.fill(); }
+  }
+  if (mark === CURIOUS) {
+    c.lineWidth = 2.4; c.strokeStyle = INK;
+    c.beginPath(); c.moveTo(6, 44); c.quadraticCurveTo(24, 62, 48, 70); c.quadraticCurveTo(72, 62, 90, 44); c.stroke();
+    c.save(); c.translate(48, 70); c.rotate(wob * 0.14);
+    c.beginPath(); c.moveTo(-12, -9); c.lineTo(12, -9); c.lineTo(24, 4); c.arcTo(24, 60, -24, 60, 6); c.arcTo(-24, 60, -24, 4, 6); c.lineTo(-24, 4); c.closePath();
+    c.fillStyle = fill; c.fill(); c.lineWidth = 4.5; c.strokeStyle = INK; c.stroke();
+    c.beginPath(); c.arc(0, 0, 3.2, 0, 7); c.fillStyle = "#fff"; c.fill(); c.lineWidth = 2.4; c.stroke();
+    c.strokeStyle = c.fillStyle = lum(rgb) > 0.6 ? INK : "#fff"; c.lineWidth = 7;
+    c.beginPath(); c.moveTo(-9, 23); c.bezierCurveTo(-9, 10, 10, 10, 10, 23); c.quadraticCurveTo(10, 30, 0, 34); c.lineTo(0, 39); c.stroke();
+    c.beginPath(); c.arc(0, 50, 4.2, 0, 7); c.fill();
+    c.restore();
+  }
   c.restore();
 }
 
@@ -373,7 +504,8 @@ function drawPoster(canvas, scale) {
   c.textAlign = "center"; c.font = "500 30px Oswald, 'Arial Narrow', sans-serif"; c.fillStyle = "#555";
   c.fillText("(1 = a little  ·  5 = overflowing)", PW / 2, 200);
 
-  JARS.forEach((label, i) => {
+  JARS.forEach((jar, i) => {
+    const label = jar.filter(part => typeof part === "string" && !part.startsWith("DISC:"));
     const col = i % COLS, row = Math.floor(i / COLS);
     const cx = PW / 2 + (col - (COLS - 1) / 2) * 150, top = 260 + row * 345;
     c.save(); c.translate(cx - 48, top); drawJar(c, i, state.answers[i], rgb); c.restore();
@@ -395,18 +527,34 @@ function drawMini(canvas, idx, level, rgb) {
 const $ = id => document.getElementById(id);
 const qWrap = $("questions"), minis = [];
 JARS.forEach((label, i) => {
-  const text = label.join(" ");
+  const text = jarLabel(label);
+  const description = jarDescription(label);
   const q = document.createElement("div"); q.className = "q";
-  q.innerHTML = `<canvas aria-hidden="true"></canvas><div><div class="qnum">${i + 1} of ${JARS.length}</div><div class="qlabel"></div><div class="scale" role="group"></div><div class="ends"><span>a little</span><span>overflowing</span></div></div>`;
+  q.innerHTML = `<canvas aria-hidden="true"></canvas><div><div class="qnum">${i + 1} of ${JARS.length}</div><div class="qlabel-row"><div class="qlabel"></div></div><div class="scale" role="group"></div><div class="ends"><span>a little</span><span>overflowing</span></div><div class="scale marks" role="group"></div></div>`;
   q.querySelector(".qlabel").textContent = text;
-  const sc = q.querySelector(".scale"); sc.setAttribute("aria-label", text);
+  if (description) {
+    const info = document.createElement("button");
+    info.type = "button"; info.className = "jar-info"; info.textContent = "i";
+    info.setAttribute("aria-label", `Information about ${text}`);
+    info.setAttribute("data-description", description);
+    info.title = description;
+    q.querySelector(".qlabel-row").appendChild(info);
+  }
+  const sc = q.querySelector(".scale"), mk = q.querySelector(".marks"); sc.setAttribute("aria-label", text); mk.setAttribute("aria-label", `${text}: special markers`);
+  const buttons = [];
   for (let v = 1; v <= 5; v++) {
     const b = document.createElement("button"); b.type = "button"; b.textContent = v;
     b.setAttribute("aria-label", `${text}: ${v} out of 5`);
     b.onclick = () => { state.answers[i] = state.answers[i] === v ? 0 : v; persist(); update(); };
-    sc.appendChild(b);
+    sc.appendChild(b); buttons.push(b);
   }
-  minis.push({ canvas: q.querySelector("canvas"), buttons: [...sc.children] });
+  for (const v of [CURIOUS, LIMIT]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = MARKS[v];
+    b.setAttribute("aria-label", `${text}: ${MARKS[v]}`);
+    b.onclick = () => { state.answers[i] = state.answers[i] === v ? 0 : v; persist(); update(); };
+    mk.appendChild(b); buttons.push(b);
+  }
+  minis.push({ canvas: q.querySelector("canvas"), buttons });
   qWrap.appendChild(q);
 });
 
@@ -449,10 +597,10 @@ function render() {
   drawMini($("pv1"), 3, 2, rgb); drawMini($("pv2"), 9, 4, rgb); drawMini($("pv3"), 2, 5, rgb);
   minis.forEach((m, i) => {
     drawMini(m.canvas, i, state.answers[i], rgb);
-    m.buttons.forEach((b, k) => b.setAttribute("aria-pressed", state.answers[i] === k + 1));
+    m.buttons.forEach((b, k) => b.setAttribute("aria-pressed", state.answers[i] === (k < 5 ? k + 1 : k === 5 ? CURIOUS : LIMIT)));
   });
   const n = state.answers.filter(Boolean).length;
-  $("progress").textContent = `${n} of ${JARS.length} filled`;
+  $("progress").textContent = `${n} of ${JARS.length} answered`;
   drawPoster($("poster"), 1);
 }
 
