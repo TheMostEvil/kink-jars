@@ -180,14 +180,15 @@ const JARS = [
   ["Biting"],
   ["Being","Bit"],
   ["Shower","Sex"],
-  ["69"],
-  ["Blowjobs","DISC: Sucking Dick"],
-  ["Cunnilingus","DISC: Eating Pussy"],
-  ["Analingus","DISC: Eating Ass"],
+  ["69","DISC:69"],
+  ["Blowjobs","DISC: Sucking Dick and or Having Dick Sucked"],
+  ["Cunnilingus","DISC: Eating Pussy and or Having Pussy Eaten"],
+  ["Analingus","DISC: Eating Ass and or Having Ass Eaten"],
   ["DDLG","/","MDLB", "DISC:Daddy Dom Little Girl / Mommy Dom Little Boy"],
-  ["Age","Play"],
+  ["Age","Play","DISC: A type of roleplay where you and or your act a different age than what you really are"],
   ["Sex","Toys"],
   ["Facesitting"],
+  ["Being","Facesat","On","DISC:"],
   ["Voyeurism","DISC:Being watched performing sexual acts"],
   ["Exhibitionism","DISC:Sexual acts in public places"],
   ["Temperature","Play"],
@@ -200,10 +201,12 @@ const JARS = [
   ["Gags"],
   ["Feet"],
   ["Anal"],
+  ["Pegging","DISC:Fucking a partner with a strap-on or other device"],
+  ["Being","Pegged","DISC: Being fucked by a partner with a strap-on or other device"],
   ["Rope Bunny","DISC: Being tied up"],
   ["Rigger","DISC: Tying people up"],
-  ["Degradation","DISC: Taking playful sexual insults"],
-  ["Degradee","DISC: Giving playful sexual insults"],
+  ["Degradation","DISC: Giving playful sexual insults"],
+  ["Degradee","DISC: Taking playful sexual insults"],
   ["BDSM"],
   ["Threesome+"],
   ["Swinging","DISC:The act of two couples switching partners"],
@@ -232,7 +235,7 @@ const JARS = [
   ["Somnophilia","DISC: Consenual Sleep Kink"],
   ["Cheating"],
   ["Chasity","Devices"],
-  ["Size","Kink"],
+  ["Size","Difference"],
   ["Body","Writing"],
   ["Smell","DISC: Arousal triggered by a partner's natural scent."],
   ["Bellybutton","Play"],
@@ -256,11 +259,11 @@ const JARS = [
   ["Vore","DISC: The act of eating someone whole or being eaten whole"],
   ["Tentacle"],
   ["Knotting",'DISC: FICTIONAL ONLY'],
-  ["Fictional","Monsters","DISC: Werewolves, Vampires, Eldrich Beings, etc"]
-
+  ["Fictional","Monsters","DISC: Werewolves, Vampires, Eldrich Beings, etc"],
+  ["Necrophillia","DISC: Having sex with a corpse (Fictional)"],
+  ["Gore","DISC: Fictional gore (Wound fucking)"],
+  ["Gun","Play","DISC: Roleplay involving real or fake guns during sex"]
 ];
-// Add a description as the final item, prefixed with "DISC:".
-// Example: ["custom", "entry", "name", "DISC:this_is_a_description"]
 const jarLabel = jar => jar.filter(part => typeof part === "string" && !part.startsWith("DISC:")).join(" ");
 const jarDescription = jar => {
   const item = jar.find(part => typeof part === "string" && part.startsWith("DISC:"));
